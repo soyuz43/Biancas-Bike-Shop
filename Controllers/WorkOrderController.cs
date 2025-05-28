@@ -44,4 +44,53 @@ public class WorkOrderController : ControllerBase
         _dbContext.SaveChanges();
         return Created($"/api/workorder/{workOrder.Id}", workOrder);
     }
+
+    [HttpPut("{id}/complete")]
+    [Authorize]
+    public IActionResult CompleteWorkOrder(int id)
+    {
+        var workOrder = _dbContext.WorkOrders.SingleOrDefault(wo => wo.Id == id);
+        if (workOrder == null) return NotFound();
+
+        workOrder.DateCompleted = DateTime.Now;
+        _dbContext.SaveChanges();
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize]
+    public IActionResult Delete(int id)
+    {
+        var workOrder = _dbContext.WorkOrders.SingleOrDefault(wo => wo.Id == id);
+        if (workOrder == null) return NotFound();
+
+        _dbContext.WorkOrders.Remove(workOrder);
+        _dbContext.SaveChanges();
+        return NoContent();
+    }
+
+    [HttpPut("{id}")]
+    [Authorize]
+    public IActionResult UpdateWorkOrder(WorkOrder workOrder, int id)
+    {
+        WorkOrder workOrderToUpdate = _dbContext.WorkOrders.SingleOrDefault(wo => wo.Id == id);
+        if (workOrderToUpdate == null)
+        {
+            return NotFound();
+        }
+        else if (id != workOrder.Id)
+        {
+            return BadRequest();
+        }
+
+        // Only allow these fields to be updated
+        workOrderToUpdate.Description = workOrder.Description;
+        workOrderToUpdate.UserProfileId = workOrder.UserProfileId;
+        workOrderToUpdate.BikeId = workOrder.BikeId;
+
+        _dbContext.SaveChanges();
+
+        return NoContent();
+    }
+
 }

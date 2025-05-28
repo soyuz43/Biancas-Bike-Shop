@@ -1,19 +1,45 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Table } from "reactstrap";
-import { getIncompleteWorkOrders } from "../../managers/workOrderManager";
+import { Table, Button, Input } from "reactstrap";
+import {
+  getIncompleteWorkOrders,
+  updateWorkOrder,
+  completeWorkOrder,
+  deleteWorkOrder,
+} from "../../managers/workOrderManager";
+import { getUserProfiles } from "../../managers/userProfileManager";
 
 export const WorkOrderList = ({ loggedInUser }) => {
   const [workOrders, setWorkOrders] = useState([]);
+  const [mechanics, setMechanics] = useState([]);
 
   useEffect(() => {
-    getIncompleteWorkOrders().then((data) => {
-      if (!Array.isArray(data)) {
-        console.error("Expected array but got:", data);
-      }
-      setWorkOrders(data);
-    });
+    getIncompleteWorkOrders().then(setWorkOrders);
+    getUserProfiles().then(setMechanics);
   }, []);
+
+  const assignMechanic = (workOrder, mechanicId) => {
+    const clone = structuredClone(workOrder);
+    clone.userProfileId = mechanicId || null;
+
+    updateWorkOrder(clone).then(() => {
+      getIncompleteWorkOrders().then(setWorkOrders);
+    });
+  };
+
+  const markComplete = (id) => {
+    completeWorkOrder(id).then(() => {
+      getIncompleteWorkOrders().then(setWorkOrders);
+    });
+  };
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this work order?")) {
+      deleteWorkOrder(id).then(() => {
+        getIncompleteWorkOrders().then(setWorkOrders);
+      });
+    }
+  };
 
   return (
     <>
@@ -40,11 +66,38 @@ export const WorkOrderList = ({ loggedInUser }) => {
               <td>{wo.description}</td>
               <td>{new Date(wo.dateInitiated).toLocaleDateString()}</td>
               <td>
-                {wo.userProfile
-                  ? `${wo.userProfile.firstName} ${wo.userProfile.lastName}`
-                  : "unassigned"}
+                <Input
+                  type="select"
+                  value={wo.userProfileId || 0}
+                  onChange={(e) => assignMechanic(wo, parseInt(e.target.value))}
+                >
+                  <option value={0}>Choose mechanic</option>
+                  {mechanics.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.firstName} {m.lastName}
+                    </option>
+                  ))}
+                </Input>
               </td>
-              <td></td>
+              <td>
+                {wo.userProfile && (
+                  <Button
+                    size="sm"
+                    color="success"
+                    onClick={() => markComplete(wo.id)}
+                    className="me-2"
+                  >
+                    Mark as Complete
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  color="danger"
+                  onClick={() => handleDelete(wo.id)}
+                >
+                  Delete
+                </Button>
+              </td>
             </tr>
           ))}
         </tbody>
