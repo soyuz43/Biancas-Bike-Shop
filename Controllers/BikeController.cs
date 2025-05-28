@@ -85,4 +85,16 @@ public class BikeController : ControllerBase
 
         return Ok(dto);
     }
+
+    [HttpGet("inventory")]
+    [Authorize]
+    public IActionResult Inventory()
+    {
+        int inventory = _dbContext
+            .Bikes
+            .Where(b => b.WorkOrders.Any(wo => wo.DateCompleted == null))
+            .Count();
+
+        return Ok(inventory);
+    }
 }
