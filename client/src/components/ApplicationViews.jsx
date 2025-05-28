@@ -3,6 +3,8 @@ import Bikes from "./bikes/Bikes";
 import { AuthorizedRoute } from "./auth/AuthorizedRoute";
 import Login from "./auth/Login";
 import Register from "./auth/Register";
+import {WorkOrderList} from "./WorkOrderList";
+
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
   return (
@@ -25,18 +27,18 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
           }
         />
         <Route
-          path="workorders"
-          element={
-            <AuthorizedRoute loggedInUser={loggedInUser}>
-              <p>Work Orders</p>
-            </AuthorizedRoute>
-          }
-        />
-        <Route
           path="employees"
           element={
             <AuthorizedRoute roles={["Admin"]} loggedInUser={loggedInUser}>
               <p>Employees</p>
+            </AuthorizedRoute>
+          }
+        />
+        <Route
+          path="workorders"
+          element={
+            <AuthorizedRoute loggedInUser={loggedInUser}>
+              <WorkOrderList />
             </AuthorizedRoute>
           }
         />

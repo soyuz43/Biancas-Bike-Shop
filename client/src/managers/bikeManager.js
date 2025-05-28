@@ -11,3 +11,4 @@ export const getBikeById = (id) => {
 export const getBikesInShopCount = () => {
   return fetch(`${apiUrl}/inventory`).then((res) => res.json());
 };
+
