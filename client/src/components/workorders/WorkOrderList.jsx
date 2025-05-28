@@ -1,29 +1,24 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Table } from "reactstrap";
-import { getIncompleteWorkOrders } from "../managers/workOrderManager";
-
-
+import { getIncompleteWorkOrders } from "../../managers/workOrderManager";
 
 export const WorkOrderList = ({ loggedInUser }) => {
   const [workOrders, setWorkOrders] = useState([]);
 
-  console.log("useEffect")
-  
-useEffect(() => {
-  getIncompleteWorkOrders().then((data) => {
-    console.log("Fetched work orders:", data);
-    if (!Array.isArray(data)) {
-      console.error("Expected array but got:", data);
-    }
-    setWorkOrders(data);
-  });
-}, []);
-
-
+  useEffect(() => {
+    getIncompleteWorkOrders().then((data) => {
+      if (!Array.isArray(data)) {
+        console.error("Expected array but got:", data);
+      }
+      setWorkOrders(data);
+    });
+  }, []);
 
   return (
     <>
       <h2>Open Work Orders</h2>
+      <Link to="/workorders/create">New Work Order</Link>
       <Table>
         <thead>
           <tr>
@@ -56,4 +51,4 @@ useEffect(() => {
       </Table>
     </>
   );
-}
+};
